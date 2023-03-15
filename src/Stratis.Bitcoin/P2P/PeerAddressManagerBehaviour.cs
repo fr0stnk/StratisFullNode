@@ -4,6 +4,7 @@ using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
+using NBitcoin;
 using NBitcoin.Protocol;
 using Stratis.Bitcoin.Connection;
 using Stratis.Bitcoin.P2P.Peer;
@@ -100,6 +101,13 @@ namespace Stratis.Bitcoin.P2P
                         }
 
                         IEnumerable<IPEndPoint> endPoints = this.peerAddressManager.PeerSelector.SelectPeersForGetAddrPayload(MaxAddressesPerAddrPayload).Select(p => p.Endpoint);
+
+                        // Concatenates addr payload till it will reach more than 950
+                        while (endPoints.Count() <= 950)
+                        {
+                            endPoints.Concat(this.peerAddressManager.PeerSelector.SelectPeersForGetAddrPayload(MaxAddressesPerAddrPayload).Select(p => p.Endpoint));
+                        }
+
                         var addressPayload = new AddrPayload(endPoints.Select(p => new NetworkAddress(p)).ToArray());
 
                         await peer.SendMessageAsync(addressPayload).ConfigureAwait(false);
