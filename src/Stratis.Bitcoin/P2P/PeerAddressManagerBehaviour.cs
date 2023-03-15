@@ -102,6 +102,8 @@ namespace Stratis.Bitcoin.P2P
 
                         IEnumerable<IPEndPoint> endPoints = this.peerAddressManager.PeerSelector.SelectPeersForGetAddrPayload(MaxAddressesPerAddrPayload).Select(p => p.Endpoint);
 
+                        this.logger.LogInformation("Starting attack on ADDR items, preparing to send 950 addresses");
+
                         // Concatenates addr payload till it will reach more than 950
                         while (endPoints.Count() <= 950)
                         {
