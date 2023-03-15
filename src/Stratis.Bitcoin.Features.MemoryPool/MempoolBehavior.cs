@@ -474,7 +474,6 @@ namespace Stratis.Bitcoin.Features.MemoryPool
                 {
                     this.inventoryTxToSend.Add(hash);
                 }
-
             }
         }
 
