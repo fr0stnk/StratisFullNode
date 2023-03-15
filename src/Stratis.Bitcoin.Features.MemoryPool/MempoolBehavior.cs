@@ -463,7 +463,6 @@ namespace Stratis.Bitcoin.Features.MemoryPool
         }
 
         /// <summary>
-        /// fr0stnk: Remove filter to transaction hash for an attack
         /// Adds the transaction to the send inventory for this behavior if it doesn't already exist.
         /// </summary>
         /// <param name="hash">Hash of transaction to add.</param>
@@ -471,7 +470,10 @@ namespace Stratis.Bitcoin.Features.MemoryPool
         {
             lock (this.lockObject)
             {
-                this.inventoryTxToSend.Add(hash);
+                if (!this.filterInventoryKnown.Contains(hash))
+                {
+                    this.inventoryTxToSend.Add(hash);
+                }
 
             }
         }
